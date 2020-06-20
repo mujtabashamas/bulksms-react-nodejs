@@ -24,8 +24,9 @@ app.get('/api/greeting', (req, res) => {
 app.post('/api/bulk', (req,res) => {
   res.header('Content-Type', 'application/json');
   const numbers = req.body.numbers;
-  numbers.pop();
-  console.log(numbers);
+  numbers = numbers.filter(String);  
+//numbers.pop();
+  //console.log(numbers);
   
   const bindings = numbers.map(number => {
     return JSON.stringify({ binding_type: 'sms', address: number });
