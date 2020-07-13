@@ -13,16 +13,14 @@ class App extends Component {
   render() {
     return (
       <Router>
-         <Header />
-        <div className="App-header">
-         
-            <Switch>
-              <Route exact path="/" component={SingleSMS} />
-              <Route exact path="/bulksms" component={BulkSMS} />
-              
-              <Route component={Page404} />
-            </Switch>
-          
+        <Header />
+        <div className='App-header'>
+          <Switch>
+            <Route exact path='/' component={SingleSMS} />
+            <Route exact path='/bulksms' component={BulkSMS} />
+
+            <Route component={Page404} />
+          </Switch>
         </div>
       </Router>
     );

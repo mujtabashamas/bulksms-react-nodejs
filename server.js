@@ -1,11 +1,20 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const fs = require('fs');
 const pino = require('express-pino-logger')();
+require('dotenv').config();
 const client = require('twilio')(
   process.env.TWILIO_SID,
   process.env.TWILIO_TOKEN
 );
+const path = require('path');
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('client/build'));
+
+  app.get('*', (req, res) =>
+    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
+  );
+}
 
 const service = client.notify.services(process.env.TWILIO_NOTIFY_SERVICE_SID);
 
@@ -20,35 +29,33 @@ app.get('/api/greeting', (req, res) => {
   res.send(JSON.stringify({ greeting: `Hello ${name}!` }));
 });
 
-
-app.post('/api/bulk', (req,res) => {
+app.post('/api/bulk', (req, res) => {
   res.header('Content-Type', 'application/json');
   const numbers = req.body.numbers;
-  numbers = numbers.filter(String);  
-//numbers.pop();
+  numbers = numbers.filter(String);
+  //numbers.pop();
   //console.log(numbers);
-  
-  const bindings = numbers.map(number => {
+
+  const bindings = numbers.map((number) => {
     return JSON.stringify({ binding_type: 'sms', address: number });
   });
 
   console.log(bindings);
- 
 
   service.notifications
-  .create({
-    toBinding: bindings,
-    body: req.body.body
-  })
-  .then(notification => {
-    console.log(notification);
-    res.send(JSON.stringify({ success: true }));
-  })
-  .catch(err => {
-    console.error(err);
-    res.send(JSON.stringify({ success: false }));
-  });
-})
+    .create({
+      toBinding: bindings,
+      body: req.body.body,
+    })
+    .then((notification) => {
+      console.log(notification);
+      res.send(JSON.stringify({ success: true }));
+    })
+    .catch((err) => {
+      console.error(err);
+      res.send(JSON.stringify({ success: false }));
+    });
+});
 
 app.post('/api/single', (req, res) => {
   res.header('Content-Type', 'application/json');
@@ -56,17 +63,17 @@ app.post('/api/single', (req, res) => {
     .create({
       from: process.env.TWILIO_FROM,
       to: req.body.to,
-      body: req.body.body
+      body: req.body.body,
     })
     .then(() => {
       res.send(JSON.stringify({ success: true }));
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       res.send(JSON.stringify({ success: false }));
     });
 });
 
-app.listen(3001, () =>
-  console.log('Express server is running on localhost:3001')
+app.listen(5000, () =>
+  console.log('Express server is running on localhost:5000')
 );
